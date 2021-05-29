@@ -41,6 +41,7 @@
     <output></output>
   </fieldset>
 
+  
   <section id="error-btns">
     <button>Console Log Demo</button>
     <button>Console Error Demo</button>
@@ -55,18 +56,141 @@
     <button>Trigger a Global Error</button>
   </section>
 
-  <script>
+  <!-- Install the TrackJS Agent -->
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+                          
+  <script>   
+   window.TrackJS && TrackJS.install({ 
+      token: "8ebb2067460f4e9ebf121513116b9189"
+      // for more configuration options, see https://docs.trackjs.com
+    });
+  
+    /* Throw and Custom Errors:
+       Now explore the use of `throw` and extending the Error object to use
+       a custom error type.  The article here does a good job of explaining 
+      how this goes: Custom errors, extending Error (javascript.info) 
+    */
+    class InputError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "InputError";
+      }
+    }
+
+    /* Function that checks both inputs on 3 instances */
+    function readInput(){
+      if (document.querySelector('#first-num').value == '' && document.querySelector('#second-num').value == ''){
+        throw new InputError("Both inputs cannot be empty!")
+      }
+      if (document.querySelector('#first-num').value == ''){
+        throw new InputError("First input cannot be empty!");
+      }
+      if (document.querySelector('#second-num').value == ''){
+        throw new InputError("Second input cannot be empty!");
+      }
+    }
+
     let calculateBtn = document.querySelector('#calculate');
     calculateBtn.addEventListener('click', () => {
       let output = document.querySelector('output');
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      // output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);       
+
+      /* Trying Try/Catch : Checking for valid input */
+      try {
+        /* Code improved utilizing custom error */
+        readInput();
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`); 
+
+        /* This commented code is for Step 3 */
+        // if (firstNum == '') throw "Invalid input!";
+        // if (secondNum == '') throw "Invalid input";
+
+      } catch (err) {
+        alert(err.name);
+        alert(err.message);
+        alert("All boxes must be filled with a number");
+      }
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
     // TODO - Make buttons functional
+    
+    /* Console Log Demo */
+    errorBtns[0].addEventListener('click', () => {
+      console.log('Hello, Console!');
+    });
+
+    /* Console Error Demo */
+    errorBtns[1].addEventListener('click', () => {
+      console.error(`I am sorry, I'm affraid I cannot do that...`);
+    });
+
+    /* Console Dir */
+    errorBtns[2].addEventListener('click', () => {
+      console.dir(document.querySelectorAll('#error-btns > button')[2]);
+    });
+
+    /* Console dirxml */
+    errorBtns[3].addEventListener('click', () => {
+      console.dirxml(errorBtns[0]);
+    });
+
+    /* Console Group Start */
+    errorBtns[4].addEventListener('click', () => {
+      console.group('Log Group');
+    });
+
+    /* Console Group End */
+    errorBtns[5].addEventListener('click', () => {
+      console.groupEnd();
+      console.log('After group end...')
+    });
+
+    /* Console Table */
+    errorBtns[6].addEventListener('click', () => {
+      console.table(errorBtns);
+    });
+
+    /* Start Timer */
+    errorBtns[7].addEventListener('click', () => {
+      console.time();
+      console.log('Start timer.');
+    });
+
+    /* End Timer */
+    errorBtns[8].addEventListener('click', () => {
+      console.timeEnd();
+      console.log('End timer...');
+    });
+
+    /* Console Trace */
+    errorBtns[9].addEventListener('click', () => {
+      const first = () => { second(); };
+      const second = () => { third(); };
+      const third = () => { fourth(); };
+      const fourth = () => { console.trace(); };
+      first();
+    });
+
+    /* Global Catch */
+    errorBtns[10].addEventListener('click', () =>{
+      function readOutput(){
+      badFunc();
+    }
+      badFunc();
+    
+      window.onerror = function(message, url, line, col, error) {
+        alert(`${message}\n At ${line}:${col} or ${url}`);
+      };
+    });
+
+    /* Track errors with TrackJS */
+    TrackJS.track('Testing TrackJS!');
+                        
+
   </script>
 </body>
 </html>
